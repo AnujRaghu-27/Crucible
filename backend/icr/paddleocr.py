@@ -1,0 +1,1 @@
+print("PaddleOCR Python file is working")

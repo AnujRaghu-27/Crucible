@@ -1,10 +1,16 @@
-function ModelSelect() {
+function ModelSelect({ selectedModel, onModelChange, disabled = false }) {
   return (
     <div className="model-select-group">
       <label htmlFor="model-select" className="model-select-label">
         Recognition Model
       </label>
-      <select id="model-select" className="model-select-dropdown" defaultValue="">
+      <select
+        id="model-select"
+        className="model-select-dropdown"
+        value={selectedModel}
+        onChange={(e) => onModelChange?.(e.target.value)}
+        disabled={disabled}
+      >
         <option value="">Select a model</option>
         <option value="google">Google Document AI</option>
         <option value="azure">Azure Document Intelligence</option>

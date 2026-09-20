@@ -3,8 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 const VALID_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
 const VALID_EXTENSIONS = ['.png', '.jpg', '.jpeg']
 
-function UploadBox() {
-  const [selectedFile, setSelectedFile] = useState(null)
+function UploadBox({ selectedFile, onFileSelect, onFileRemove, disabled = false }) {
   const [previewUrl, setPreviewUrl] = useState(null)
   const [isDragging, setIsDragging] = useState(false)
   const [errorMessage, setErrorMessage] = useState(null)
@@ -12,17 +11,23 @@ function UploadBox() {
   const fileInputRef = useRef(null)
   const dragCounter = useRef(0)
 
-  // Clean up object URL when unmounting
+  // Manage object URL lifecycle for selectedFile
   useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
-      }
+    if (!selectedFile) {
+      setPreviewUrl(null)
+      return
     }
-  }, [previewUrl])
+
+    const url = URL.createObjectURL(selectedFile)
+    setPreviewUrl(url)
+
+    return () => {
+      URL.revokeObjectURL(url)
+    }
+  }, [selectedFile])
 
   const validateAndSetFile = (file) => {
-    if (!file) return
+    if (!file || disabled) return
 
     const fileType = file.type ? file.type.toLowerCase() : ''
     const fileName = file.name ? file.name.toLowerCase() : ''
@@ -30,13 +35,8 @@ function UploadBox() {
     const isExtValid = VALID_EXTENSIONS.some((ext) => fileName.endsWith(ext))
 
     if (isMimeValid || isExtValid) {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl)
-      }
-      const newPreviewUrl = URL.createObjectURL(file)
-      setSelectedFile(file)
-      setPreviewUrl(newPreviewUrl)
       setErrorMessage(null)
+      onFileSelect?.(file)
     } else {
       setErrorMessage('Unsupported file format. Please choose a PNG, JPG, or JPEG image.')
     }
@@ -54,6 +54,7 @@ function UploadBox() {
   const handleDragEnter = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (disabled) return
     dragCounter.current += 1
     if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
       setIsDragging(true)
@@ -63,6 +64,7 @@ function UploadBox() {
   const handleDragLeave = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (disabled) return
     dragCounter.current -= 1
     if (dragCounter.current <= 0) {
       dragCounter.current = 0
@@ -78,6 +80,7 @@ function UploadBox() {
   const handleDrop = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (disabled) return
     dragCounter.current = 0
     setIsDragging(false)
 
@@ -88,29 +91,28 @@ function UploadBox() {
   }
 
   const handleBrowseClick = () => {
+    if (disabled) return
     fileInputRef.current?.click()
   }
 
   const handleRemove = (e) => {
     e.stopPropagation()
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl)
-    }
-    setSelectedFile(null)
-    setPreviewUrl(null)
+    if (disabled) return
     setErrorMessage(null)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+    onFileRemove?.()
   }
 
   const handleReplace = (e) => {
     e.stopPropagation()
+    if (disabled) return
     handleBrowseClick()
   }
 
   const handleKeyDown = (e) => {
-    if (!selectedFile && (e.key === 'Enter' || e.key === ' ')) {
+    if (!selectedFile && !disabled && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault()
       handleBrowseClick()
     }
@@ -118,14 +120,14 @@ function UploadBox() {
 
   return (
     <div
-      className={`upload-box ${isDragging ? 'is-dragging' : ''} ${selectedFile ? 'has-file' : ''}`}
+      className={`upload-box ${isDragging ? 'is-dragging' : ''} ${selectedFile ? 'has-file' : ''} ${disabled ? 'is-disabled' : ''}`}
       onDragEnter={handleDragEnter}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      onClick={!selectedFile ? handleBrowseClick : undefined}
-      role={!selectedFile ? 'button' : undefined}
-      tabIndex={!selectedFile ? 0 : undefined}
+      onClick={!selectedFile && !disabled ? handleBrowseClick : undefined}
+      role={!selectedFile && !disabled ? 'button' : undefined}
+      tabIndex={!selectedFile && !disabled ? 0 : undefined}
       onKeyDown={handleKeyDown}
       aria-label="Upload handwritten answer"
     >
@@ -136,6 +138,7 @@ function UploadBox() {
         onChange={handleFileChange}
         className="upload-file-input"
         tabIndex={-1}
+        disabled={disabled}
         aria-hidden="true"
       />
 
@@ -163,7 +166,9 @@ function UploadBox() {
       ) : (
         <div className="selected-state-container">
           <div className="preview-container">
-            <img src={previewUrl} alt="Handwritten answer preview" className="preview-image" />
+            {previewUrl && (
+              <img src={previewUrl} alt="Handwritten answer preview" className="preview-image" />
+            )}
           </div>
           <div className="file-info-row">
             <span className="file-name" title={selectedFile.name}>
@@ -171,10 +176,20 @@ function UploadBox() {
             </span>
           </div>
           <div className="file-actions">
-            <button type="button" className="btn-action btn-replace" onClick={handleReplace}>
+            <button
+              type="button"
+              className="btn-action btn-replace"
+              onClick={handleReplace}
+              disabled={disabled}
+            >
               Replace file
             </button>
-            <button type="button" className="btn-action btn-remove" onClick={handleRemove}>
+            <button
+              type="button"
+              className="btn-action btn-remove"
+              onClick={handleRemove}
+              disabled={disabled}
+            >
               Remove
             </button>
           </div>
