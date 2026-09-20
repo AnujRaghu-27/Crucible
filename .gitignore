@@ -25,3 +25,4 @@ dist-ssr
 backend/venv/
 backend/uploads/
 backend/icr/__pycache__/
+backend/AWSCLIV2.pkg

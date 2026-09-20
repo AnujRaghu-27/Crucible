@@ -12,11 +12,8 @@ function ModelSelect({ selectedModel, onModelChange, disabled = false }) {
         disabled={disabled}
       >
         <option value="">Select a model</option>
-        <option value="google">Google Document AI</option>
-        <option value="azure">Azure Document Intelligence</option>
-        <option value="aws">Amazon Textract</option>
-        <option value="paddle">PaddleOCR PP-OCRv5</option>
-        <option value="transkribus">Transkribus</option>
+        <option value="paddle">PaddleOCR PP-OCRv6</option>
+        <option value="surya">Surya 2</option>
       </select>
     </div>
   )
