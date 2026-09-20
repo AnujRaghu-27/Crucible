@@ -14,8 +14,8 @@ function App() {
 
   const isAnalyzeReady = Boolean(selectedFile && selectedModel)
 
-  const handleAnalyze = async () => {
-    if (!isAnalyzeReady || isAnalyzing) return
+  const analyzeImage = async (model = selectedModel) => {
+    if (!selectedFile || !model || isAnalyzing) return
 
     setIsAnalyzing(true)
 
@@ -23,7 +23,7 @@ function App() {
       const formData = new FormData()
 
       formData.append('image', selectedFile)
-      formData.append('model', selectedModel)
+      formData.append('model', model)
 
       const response = await fetch('/api/analyze', {
         method: 'POST',
@@ -32,7 +32,12 @@ function App() {
 
       const data = await response.json()
 
+      if (!response.ok) {
+        throw new Error(data.message || 'Analysis failed')
+      }
+
       setOcrText(data.text)
+      setSelectedModel(model)
       setShowResult(true)
     } catch (error) {
       console.error('Analyze request failed:', error)
@@ -41,12 +46,23 @@ function App() {
     }
   }
 
+  const handleAnalyze = () => {
+    if (!isAnalyzeReady) return
+
+    analyzeImage(selectedModel)
+  }
+
+  const handleReanalyze = (newModel) => {
+    setSelectedModel(newModel)
+    analyzeImage(newModel)
+  }
+
   if (showResult) {
     return (
       <div className="app-layout">
         <Header />
 
-        <ResultPage selectedFile={selectedFile} ocrText={ocrText} selectedModel={selectedModel} onChangeImage={() => setShowResult(false)}/>
+        <ResultPage selectedFile={selectedFile} ocrText={ocrText} selectedModel={selectedModel} isAnalyzing={isAnalyzing} onReanalyze={handleReanalyze} onChangeImage={() => setShowResult(false)}/>
       </div>
     )
   }
