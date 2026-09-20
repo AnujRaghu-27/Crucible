@@ -373,3 +373,14 @@ body {
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+.ocr-result {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #444;
+  color: white;
+}
+
+.ocr-result p {
+  white-space: pre-wrap;
+}

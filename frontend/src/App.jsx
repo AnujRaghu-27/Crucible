@@ -8,6 +8,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [selectedModel, setSelectedModel] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [ocrText, setOcrText] = useState('')
 
   const isAnalyzeReady = Boolean(selectedFile && selectedModel)
 
@@ -29,7 +30,8 @@ function App() {
 
       const data = await response.json()
 
-      console.log(data)
+      console.log('Response from backend:', data)
+      setOcrText(data.text)
     } catch (error) {
       console.error('Analyze request failed:', error)
     } finally {
@@ -55,6 +57,12 @@ function App() {
           <button type="button" className="btn-analyze" disabled={!isAnalyzeReady || isAnalyzing} onClick={handleAnalyze}>
             {isAnalyzing ? 'Analyzing...' : 'Analyze'}
           </button>
+          {ocrText && (
+            <div className="ocr-result">
+              <h2>Recognized Text</h2>
+              <p>{ocrText}</p>
+            </div>
+          )}
         </div>
       </main>
     </div>
