@@ -526,7 +526,7 @@ body {
 
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .recognized-block {
@@ -540,42 +540,77 @@ body {
   margin: 0;
 }
 
-.recognized-block h1,
-.recognized-block h2,
-.recognized-block h3 {
+.recognized-sectionheader h1 {
   margin: 0;
-  line-height: 1.3;
-}
-
-.recognized-block h1 {
+  text-align: center;
   font-size: 24px;
   font-weight: 600;
-  text-align: center;
 }
 
-.recognized-block h2 {
-  font-size: 20px;
-  font-weight: 600;
+.recognized-table {
+  width: 100%;
+  overflow-x: auto;
 }
 
-.recognized-block h3 {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.recognized-block table {
+.recognized-table table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
 }
 
-.recognized-block th,
-.recognized-block td {
+.recognized-table th,
+.recognized-table td {
   border: 1px solid var(--border-default);
-  padding: 6px 8px;
-  text-align: left;
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
 }
 
-.recognized-block math {
-  font-size: 16px;
+.recognized-equation {
+  width: 100%;
+  overflow-x: auto;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.recognized-equation .katex-display {
+  margin: 0;
+}
+
+.surya-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.surya-table table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: collapse;
+  display: table;
+}
+
+.surya-table thead {
+  display: table-header-group;
+}
+
+.surya-table tbody {
+  display: table-row-group;
+}
+
+.surya-table tr {
+  display: table-row;
+}
+
+.surya-table th,
+.surya-table td {
+  display: table-cell;
+  border: 1px solid var(--border-default);
+  padding: 8px 10px;
+  min-width: 60px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.surya-table math {
+  font-size: 14px;
 }

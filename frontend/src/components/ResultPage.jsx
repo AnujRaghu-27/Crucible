@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 
 function ResultPage({
   selectedFile,
@@ -20,8 +22,29 @@ function ResultPage({
       : []
 
   const page = suryaPages[0]
-
   const blocks = page?.blocks || []
+
+  const renderEquation = (html) => {
+    const match = html.match(/<math[^>]*>([\s\S]*?)<\/math>/)
+
+    if (!match) {
+      return null
+    }
+
+    const latex = match[1]
+
+    return (
+      <div
+        className="recognized-equation"
+        dangerouslySetInnerHTML={{
+          __html: katex.renderToString(latex, {
+            displayMode: true,
+            throwOnError: false
+          })
+        }}
+      />
+    )
+  }
 
   return (
     <main className="result-container">
@@ -78,15 +101,38 @@ function ResultPage({
           </div>
         ) : selectedModel === 'surya' ? (
           <div className="recognized-page">
-            {blocks.map((block, index) => (
-              <div
-                key={index}
-                className="recognized-block"
-                dangerouslySetInnerHTML={{
-                  __html: block.html || ''
-                }}
-              />
-            ))}
+            {blocks.map((block, index) => {
+              if (block.label === 'Equation') {
+                return (
+                  <div key={index} className="recognized-block">
+                    {renderEquation(block.html)}
+                  </div>
+                )
+              }
+
+              if (block.label === 'Table') {
+                return (
+                  <div key={index} className="recognized-block">
+                    <div
+                      className="surya-table"
+                      dangerouslySetInnerHTML={{
+                        __html: block.html || ''
+                      }}
+                    />
+                  </div>
+                )
+              }
+
+              return (
+                <div
+                  key={index}
+                  className={`recognized-block recognized-${block.label?.toLowerCase()}`}
+                  dangerouslySetInnerHTML={{
+                    __html: block.html || ''
+                  }}
+                />
+              )
+            })}
           </div>
         ) : (
           <div className="result-text">
