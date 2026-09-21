@@ -9,7 +9,7 @@ function App() {
   const [selectedFile, setSelectedFile] = useState(null)
   const [selectedModel, setSelectedModel] = useState('')
   const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [ocrText, setOcrText] = useState('')
+  const [ocrResult, setOcrResult] = useState(null)
   const [showResult, setShowResult] = useState(false)
 
   const isAnalyzeReady = Boolean(selectedFile && selectedModel)
@@ -36,7 +36,7 @@ function App() {
         throw new Error(data.message || 'Analysis failed')
       }
 
-      setOcrText(data.text)
+      setOcrResult(data)
       setSelectedModel(model)
       setShowResult(true)
     } catch (error) {
@@ -62,7 +62,14 @@ function App() {
       <div className="app-layout">
         <Header />
 
-        <ResultPage selectedFile={selectedFile} ocrText={ocrText} selectedModel={selectedModel} isAnalyzing={isAnalyzing} onReanalyze={handleReanalyze} onChangeImage={() => setShowResult(false)}/>
+        <ResultPage
+          selectedFile={selectedFile}
+          ocrResult={ocrResult}
+          selectedModel={selectedModel}
+          isAnalyzing={isAnalyzing}
+          onReanalyze={handleReanalyze}
+          onChangeImage={() => setShowResult(false)}
+        />
       </div>
     )
   }
@@ -83,11 +90,25 @@ function App() {
             </p>
           </section>
 
-          <UploadBox selectedFile={selectedFile} onFileSelect={setSelectedFile} onFileRemove={() => setSelectedFile(null)} disabled={isAnalyzing}/>
+          <UploadBox
+            selectedFile={selectedFile}
+            onFileSelect={setSelectedFile}
+            onFileRemove={() => setSelectedFile(null)}
+            disabled={isAnalyzing}
+          />
 
-          <ModelSelect selectedModel={selectedModel} onModelChange={setSelectedModel} disabled={isAnalyzing}/>
+          <ModelSelect
+            selectedModel={selectedModel}
+            onModelChange={setSelectedModel}
+            disabled={isAnalyzing}
+          />
 
-          <button type="button" className="btn-analyze" disabled={!isAnalyzeReady || isAnalyzing} onClick={handleAnalyze}>
+          <button
+            type="button"
+            className="btn-analyze"
+            disabled={!isAnalyzeReady || isAnalyzing}
+            onClick={handleAnalyze}
+          >
             {isAnalyzing ? 'Analyzing...' : 'Analyze'}
           </button>
         </div>

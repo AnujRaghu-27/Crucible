@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 function ResultPage({
   selectedFile,
-  ocrText,
+  ocrResult,
   selectedModel,
   isAnalyzing,
   onReanalyze,
@@ -14,14 +14,32 @@ function ResultPage({
     onReanalyze(modelToUse)
   }
 
+  const suryaPages =
+    selectedModel === 'surya'
+      ? Object.values(ocrResult?.result || {}).flat()
+      : []
+
+  const page = suryaPages[0]
+
+  const blocks = page?.blocks || []
+
   return (
     <main className="result-container">
       <div className="result-left">
         <h2>Uploaded Image</h2>
 
-        <img src={URL.createObjectURL(selectedFile)} alt="Uploaded handwritten answer" className="result-image"/>
+        <img
+          src={URL.createObjectURL(selectedFile)}
+          alt="Uploaded handwritten answer"
+          className="result-image"
+        />
 
-        <button type="button" className="btn-change-image" onClick={onChangeImage} disabled={isAnalyzing}>
+        <button
+          type="button"
+          className="btn-change-image"
+          onClick={onChangeImage}
+          disabled={isAnalyzing}
+        >
           Change Image
         </button>
       </div>
@@ -34,19 +52,47 @@ function ResultPage({
             Recognition Model
           </label>
 
-          <select id="result-model-select" value={modelToUse} onChange={(e) => setModelToUse(e.target.value)} disabled={isAnalyzing}>
+          <select
+            id="result-model-select"
+            value={modelToUse}
+            onChange={(e) => setModelToUse(e.target.value)}
+            disabled={isAnalyzing}
+          >
             <option value="paddle">PaddleOCR PP-OCRv6</option>
             <option value="surya">Surya 2</option>
           </select>
         </div>
 
-        <button type="button" className="btn-reanalyze" onClick={handleReanalyze} disabled={isAnalyzing}>
+        <button
+          type="button"
+          className="btn-reanalyze"
+          onClick={handleReanalyze}
+          disabled={isAnalyzing}
+        >
           {isAnalyzing ? 'Analyzing...' : 'Re-analyze'}
         </button>
 
-        <div className="result-text">
-          {isAnalyzing ? 'Analyzing...' : ocrText}
-        </div>
+        {isAnalyzing ? (
+          <div className="result-text">
+            Analyzing...
+          </div>
+        ) : selectedModel === 'surya' ? (
+          <div className="recognized-page">
+            {blocks.map((block, index) => (
+              <div
+                key={index}
+                className="recognized-block"
+                dangerouslySetInnerHTML={{
+                  __html: block.html || ''
+                }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="result-text">
+            {ocrResult?.text}
+          </div>
+        )}
       </div>
     </main>
   )

@@ -17,26 +17,55 @@ const upload = multer({
 
 app.post('/api/analyze', upload.single('image'), (req, res) => {
   console.log('Analyze request received')
-
   console.log('Image:', req.file)
   console.log('Model:', req.body.model)
 
-  exec(`./venv/bin/python icr/paddleRunner.py "${req.file.path}"`, (error, stdout, stderr) => {
-    if (error) {
-      console.error('Python error:', error)
-      return res.status(500).json({
-        success: false,
-        message: 'Python execution failed'
+  const runner =
+    req.body.model === 'surya'
+      ? 'icr/suryaRunner.py'
+      : 'icr/paddleRunner.py'
+
+  exec(
+    `./venv/bin/python "${runner}" "${req.file.path}"`,
+    (error, stdout, stderr) => {
+      if (error) {
+        console.error('Python error:', error)
+        console.error('Python stderr:', stderr)
+
+        return res.status(500).json({
+          success: false,
+          message: stderr || 'Python execution failed'
+        })
+      }
+
+      console.log('Python output:', stdout)
+
+      if (req.body.model === 'surya') {
+        try {
+          const result = JSON.parse(stdout)
+
+          return res.json({
+            success: true,
+            model: 'surya',
+            result
+          })
+        } catch (parseError) {
+          console.error('Surya JSON parse error:', parseError)
+
+          return res.status(500).json({
+            success: false,
+            message: 'Invalid JSON returned by Surya'
+          })
+        }
+      }
+
+      res.json({
+        success: true,
+        model: 'paddle',
+        text: stdout
       })
     }
-
-    console.log('Python output:', stdout)
-
-    res.json({
-      success: true,
-      text: stdout
-    })
-  })
+  )
 })
 
 app.listen(5001, () => {
