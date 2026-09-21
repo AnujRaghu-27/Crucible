@@ -25,10 +25,13 @@ function App() {
       formData.append('image', selectedFile)
       formData.append('model', model)
 
-      const response = await fetch('/api/analyze', {
-        method: 'POST',
-        body: formData
-      })
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/analyze`,
+        {
+          method: 'POST',
+          body: formData
+        }
+      )
 
       const data = await response.json()
 
