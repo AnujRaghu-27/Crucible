@@ -27,3 +27,4 @@ backend/uploads/
 backend/icr/__pycache__/
 backend/AWSCLIV2.pkg
 frontend/.env
+backend/layout.json
