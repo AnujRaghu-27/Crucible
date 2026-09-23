@@ -1,7 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 
-const VALID_MIME_TYPES = ['image/png', 'image/jpeg', 'image/jpg']
-const VALID_EXTENSIONS = ['.png', '.jpg', '.jpeg']
+const VALID_MIME_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'application/pdf'
+]
+
+const VALID_EXTENSIONS = [
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.pdf'
+]
 
 function UploadBox({ selectedFile, onFileSelect, onFileRemove, disabled = false }) {
   const [previewUrl, setPreviewUrl] = useState(null)
@@ -38,7 +49,7 @@ function UploadBox({ selectedFile, onFileSelect, onFileRemove, disabled = false 
       setErrorMessage(null)
       onFileSelect?.(file)
     } else {
-      setErrorMessage('Unsupported file format. Please choose a PNG, JPG, or JPEG image.')
+      setErrorMessage('Unsupported file format. Please choose a PNG, JPG, JPEG, or PDF file.')
     }
   }
 
@@ -134,7 +145,7 @@ function UploadBox({ selectedFile, onFileSelect, onFileRemove, disabled = false 
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/png, image/jpeg, .png, .jpg, .jpeg"
+        accept="image/png, image/jpeg, application/pdf, .png, .jpg, .jpeg, .pdf"
         onChange={handleFileChange}
         className="upload-file-input"
         tabIndex={-1}
@@ -161,13 +172,23 @@ function UploadBox({ selectedFile, onFileSelect, onFileRemove, disabled = false 
             </svg>
           </div>
           <div className="upload-instruction">Drop file here or browse</div>
-          <div className="upload-formats">PNG, JPG, JPEG</div>
+          <div className="upload-formats">PNG, JPG, JPEG, PDF</div>
         </>
       ) : (
         <div className="selected-state-container">
           <div className="preview-container">
-            {previewUrl && (
-              <img src={previewUrl} alt="Handwritten answer preview" className="preview-image" />
+            {selectedFile?.type === 'application/pdf' ? (
+              <div className="pdf-preview">
+                PDF
+              </div>
+            ) : (
+              previewUrl && (
+                <img
+                  src={previewUrl}
+                  alt="Handwritten answer preview"
+                  className="preview-image"
+                />
+              )
             )}
           </div>
           <div className="file-info-row">
